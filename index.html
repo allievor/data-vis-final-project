@@ -1,12 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Final Project</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genre Pulse — 2010s Cinema</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <p>final project here</p>
+
+<div id="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1>GENRE <span>PULSE</span></h1>
+      <p>Monthly share of movie releases by genre — 2010s cinema. Hover a stream to reveal top-grossing titles. Click to drill into a genre.</p>
+    </div>
+    <div class="controls">
+      <label for="year-filter">Year</label>
+      <select id="year-filter">
+        <option value="all">All years (2010–2019)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- Viz Row -->
+  <div class="viz-row">
+
+    <!-- Stream Graph -->
+    <div class="chart-card chart-card--stream">
+      <div id="chart"></div>
+      <div class="legend-section">
+        <div class="legend-title">Genres — hover to highlight, click to drill down</div>
+        <div id="legend"></div>
+      </div>
+    </div>
+
+    <!-- Scatter Plot -->
+    <div class="chart-card chart-card--scatter" id="scatter-card">
+      <div class="scatter-empty" id="scatter-empty">
+        <div class="scatter-empty-icon">◎</div>
+        <p>Click a genre stream<br/>to explore its movies</p>
+      </div>
+      <div id="scatter" style="display:none"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Tooltip (stream) -->
+<div id="tooltip"></div>
+<!-- Tooltip (scatter) -->
+<div id="scatter-tooltip"></div>
+
+<!-- D3 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<!-- Visualization -->
+<script src="js/main.js"></script>
+
 </body>
 </html>
