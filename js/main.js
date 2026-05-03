@@ -31,7 +31,7 @@ const tooltip = d3.select("#tooltip");
 const scatterTooltip = d3.select("#scatter-tooltip");
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
-d3.csv("movie_dataset.csv").then(raw => {
+d3.csv("data/cleaned_movie_dataset.csv").then(raw => {
   // 1. Deduplicate by movie title (keep first occurrence)
   const seen = new Set();
   const deduped = raw.filter(d => {
@@ -90,7 +90,7 @@ d3.csv("movie_dataset.csv").then(raw => {
   console.error("Failed to load CSV:", err);
   d3.select("#chart").append("p")
     .style("color","#e85d38")
-    .text("⚠ Could not load movie_dataset.csv — make sure it's in the same directory.");
+    .text("⚠ Could not load cleaned_movie_dataset.csv");
 });
 
 // ─── UPDATE ───────────────────────────────────────────────────────────────────
