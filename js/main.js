@@ -65,9 +65,7 @@ d3.csv("data/cleaned_movie_dataset.csv").then(raw => {
         year,
         month,
         profit: +d.profit || 0,
-        worldwide_gross:   +d.worldwide_gross   || 0,
-        domestic_gross:    +d.domestic_gross    || 0,
-        foreign_gross:     +d.foreign_gross     || 0,
+        gross_revenue:   +d.gross_revenue   || 0,
         production_budget: +d.production_budget || 0,
         genreWeights,
         genreFlags: Object.fromEntries(GENRES.map((g, i) => [g, genreFlags[i]]))
@@ -202,7 +200,7 @@ function update() {
       const fmt = v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${v.toLocaleString()}`;
 
       let html = `<div class="tt-genre" style="color:${GENRE_COLORS[genre]}">${genre}</div>`;
-      html += `<div class="tt-label">Top 3 by profit:</div>`;
+      html += `<div class="tt-label">Top 3 movies by profit:</div>`;
       if (top3.length === 0) {
         html += `<div class="tt-movie">No data</div>`;
       } else {
@@ -275,7 +273,7 @@ function update() {
       .attr("text-anchor","middle")
       .attr("dominant-baseline","middle")
       .style("pointer-events","none")
-      .text(s.key.length > 8 ? s.key.slice(0, 7) + "…" : s.key);
+      .text(s.key);
   });
 
   // ── Legend ──
@@ -344,7 +342,7 @@ function drawScatter(genre, movies) {
     .attr("transform", `translate(${SM.left},${SM.top})`);
 
   // Filter out rows with missing budget/gross
-  const valid = movies.filter(d => d.production_budget > 0 && d.worldwide_gross > 0);
+  const valid = movies.filter(d => d.production_budget > 0 && d.gross_revenue > 0);
 
   // ── Scales ──
   const xScale = d3.scaleLinear()
@@ -352,7 +350,7 @@ function drawScatter(genre, movies) {
     .range([0, iW]);
 
   const yScale = d3.scaleLinear()
-    .domain([0, d3.max(valid, d => d.worldwide_gross) * 1.05])
+    .domain([0, d3.max(valid, d => d.gross_revenue) * 1.05])
     .range([iH, 0]);
 
   // ── Grid lines ──
@@ -371,7 +369,7 @@ function drawScatter(genre, movies) {
   // ── Break-even line (gross = budget) ──
   const beMax = Math.min(
     d3.max(valid, d => d.production_budget),
-    d3.max(valid, d => d.worldwide_gross)
+    d3.max(valid, d => d.gross_revenue)
   );
   g.append("line")
     .attr("x1", xScale(0)).attr("y1", yScale(0))
@@ -386,7 +384,7 @@ function drawScatter(genre, movies) {
     .join("circle")
     .attr("class","scatter-dot")
     .attr("cx", d => xScale(d.production_budget))
-    .attr("cy", d => yScale(d.worldwide_gross))
+    .attr("cy", d => yScale(d.gross_revenue))
     .attr("r", 5)
     .attr("fill", color)
     .attr("opacity", 0.7)
@@ -397,9 +395,7 @@ function drawScatter(genre, movies) {
       let html = `<div class="stt-title">${d.movie}</div>`;
       html += row("Release",   dateStr);
       html += row("Budget",    fmt(d.production_budget));
-      html += row("Worldwide", fmt(d.worldwide_gross));
-      html += row("Domestic",  fmt(d.domestic_gross));
-      html += row("Foreign",   fmt(d.foreign_gross));
+      html += row("Revenue", fmt(d.gross_revenue));
 
       scatterTooltip
         .style("display","block").style("opacity","1")
@@ -428,7 +424,7 @@ function drawScatter(genre, movies) {
   g.append("text").attr("class","axis-label")
     .attr("transform","rotate(-90)")
     .attr("x", -iH / 2).attr("y", -52).attr("text-anchor","middle")
-    .text("Worldwide Gross");
+    .text("Gross Revenue");
 }
 
 // helper for scatter tooltip rows
