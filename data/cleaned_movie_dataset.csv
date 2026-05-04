@@ -1,4 +1,4 @@
-movie,year,production_budget,worldwide_gross,month,profit,release_date,genre_list,genres,Action,Adventure,Animation,Comedy,Crime,Documentary,Drama,Family,Fantasy,History,Horror,Music,Mystery,Romance,Science Fiction,TV Movie,Thriller,War,Western
+movie,year,production_budget,gross_revenue,month,profit,release_date,genre_list,genres,Action,Adventure,Animation,Comedy,Crime,Documentary,Drama,Family,Fantasy,History,Horror,Music,Mystery,Romance,Science Fiction,TV Movie,Thriller,War,Western
 Pirates of the Caribbean: On Stranger Tides,2011,410600000,1045663875,5,635063875,2011-05-20,"['Adventure', 'Action', 'Fantasy']","Adventure,Action,Fantasy",1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
 Avengers: Age of Ultron,2015,330600000,1403013963,5,1072413963,2015-05-01,"['Action', 'Adventure', 'Science Fiction']","Action,Adventure,Science Fiction",1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0
 Avengers: Infinity War,2018,300000000,2048134200,4,1748134200,2018-04-27,"['Adventure', 'Action', 'Fantasy']","Adventure,Action,Fantasy",1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
