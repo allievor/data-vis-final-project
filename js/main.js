@@ -31,7 +31,7 @@ const tooltip = d3.select("#tooltip");
 const scatterTooltip = d3.select("#scatter-tooltip");
 
 // ─── MAIN ─────────────────────────────────────────────────────────────────────
-d3.csv("movie_dataset.csv").then(raw => {
+d3.csv("data/movie_dataset.csv").then(raw => {
   // 1. Deduplicate by movie title (keep first occurrence)
   const seen = new Set();
   const deduped = raw.filter(d => {
@@ -50,7 +50,8 @@ d3.csv("movie_dataset.csv").then(raw => {
       if (parts.length < 2) return null;
       const year = +parts[0];
       const month = +parts[1]; // 1-indexed
-      if (isNaN(year) || isNaN(month) || month < 1 || month > 12) return null;
+      const day = +parts[2];
+      if (isNaN(year) || isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) return null;
 
       // Compute genre weight
       const genreFlags = GENRES.map(g => +(d[g] || 0));
@@ -64,6 +65,7 @@ d3.csv("movie_dataset.csv").then(raw => {
         movie: d.movie?.trim(),
         year,
         month,
+        day,
         profit: +d.profit || 0,
         worldwide_gross:   +d.worldwide_gross   || 0,
         domestic_gross:    +d.domestic_gross    || 0,
@@ -147,7 +149,7 @@ function update() {
   // ── Dimensions ──
   const container = document.getElementById("chart");
   const W = container.clientWidth || 900;
-  const H = Math.min(520, window.innerHeight * 0.55);
+  const H = Math.min(575, window.innerHeight * 0.6);
   const innerW = W - MARGIN.left - MARGIN.right;
   const innerH = H - MARGIN.top - MARGIN.bottom;
 
@@ -329,8 +331,8 @@ function drawScatter(genre, movies) {
     });
 
   // ── Dimensions ──
-  const W = container.clientWidth || 380;
-  const H = 360;
+  const W = container.clientWidth || 700;
+  const H = 450;
   const SM = { top: 20, right: 20, bottom: 54, left: 62 };
   const iW = W - SM.left - SM.right;
   const iH = H - SM.top  - SM.bottom;
@@ -393,9 +395,10 @@ function drawScatter(genre, movies) {
     .on("mousemove", function(event, d) {
       d3.select(this).attr("r", 7).attr("opacity", 1);
 
-      const dateStr = `${d.year}-${String(d.month).padStart(2,"0")}`;
+      const dateStr = `${String(d.month).padStart(2,"0")}-${String(d.day).padStart(2,"0")}-${d.year}`;
+
       let html = `<div class="stt-title">${d.movie}</div>`;
-      html += row("Release",   dateStr);
+      html += row("Release Date",   dateStr);
       html += row("Budget",    fmt(d.production_budget));
       html += row("Worldwide", fmt(d.worldwide_gross));
       html += row("Domestic",  fmt(d.domestic_gross));

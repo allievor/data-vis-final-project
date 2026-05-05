@@ -375,7 +375,7 @@ html, body {
 
 /* ── Scatter tooltip ── */
 #scatter-tooltip {
-  position: fixed;
+  position: absolute;
   display: none;
   opacity: 0;
   pointer-events: none;
