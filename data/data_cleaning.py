@@ -13,6 +13,9 @@ columns = ['movie', 'year', 'production_budget', 'worldwide_gross', 'month', 'pr
 # make new dataframe with only those columns
 cleaned_df = filtered_df[columns]
 
+# rename worldwide gross to gross revenue
+cleaned_df = cleaned_df.rename(columns={'worldwide_gross': 'gross_revenue'})
+
 # save to a new CSV (index=False prevents adding an extra row-number column)
 cleaned_df.to_csv('data/cleaned_movie_dataset.csv', index=False)
 
