@@ -577,7 +577,7 @@ function drawScatter(genre, movies) {
   g.append("text").attr("class","axis-label")
     .attr("transform","rotate(-90)")
     .attr("x", -iH / 2).attr("y", -52).attr("text-anchor","middle")
-    .text("Gross Revenue");
+    .text("Worldwide Gross");
 }
 
 // helper for scatter tooltip rows
