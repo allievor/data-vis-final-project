@@ -13,19 +13,20 @@
   <!-- Header -->
   <header class="header">
     <div class="header-left">
-      <h1>2010s Cinema: <span>Genre Analysis</span></h1>
-      <p>Explore movie releases by genre throughout the year. Hover over a stream to view the top-grossing titles and click to reveal budget and revenue insights.</p>
+      <h1>GENRE <span>PULSE</span></h1>
+      <p>Monthly share of movie releases by genre (2010-2018). Hover a stream to reveal top-grossing titles. Click to drill into a genre.</p>
     </div>
     <div class="controls">
       <label for="year-filter">Year</label>
       <select id="year-filter">
-        <option value="all">All years (2010–2019)</option>
+        <option value="all">All years (2010–2018)</option>
       </select>
     </div>
   </header>
 
     <!-- Stream Graph -->
     <div class="chart-card chart-card--stream">
+      <button class="info-btn" id="info-btn" aria-label="How to use this visualization">?</button>
       <div id="chart"></div>
       <div class="legend-section">
         <div class="legend-title">Genres — hover to highlight</div>
@@ -41,6 +42,61 @@
       </div>
       <div id="scatter" style="display:none"></div>
     </div>
+
+    
+    <li>Dataset is from the Github repository 
+        <a href="https://github.com/ntdoris/movie-revenue-analysis/blob/main/final_dataset.csv" style = "color: #a6cee3">
+        “Movie Revenue Analysis”</a> by Natalya Doris (@ntdoris)</li>
+
+    
+    
+    <div id="info-overlay" class="info-overlay" hidden>
+  <div class="info-modal" role="dialog" aria-modal="true" aria-labelledby="info-title">
+    <div class="info-modal-header">
+      <h2 id="info-title">How to view this visualization</h2>
+      <button class="info-close" id="info-close" aria-label="Close">✕</button>
+    </div>
+    <div class="info-modal-body">
+      <div class="info-section">
+        <div class="info-section-title">Stream Graph</div>
+        <p>Each colored stream represents a genre. The height of a stream at any given month 
+            reflects that genre's total share of all movies released that month. A share is a 
+            proportional fraction of a movie assigned evenly across all of its listed genres. 
+            For example, a movie with 4 genres would add .25 of a share to each genre it represents. </p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Year Filter</div>
+        <p>Use the dropdown above to narrow the visualization to a specific year. Selecting a 
+            year updates both the stream graph and any open scatter plot.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Hover</div>
+        <p>Hover over any stream to highlight that genre and see a tooltip showing its total 
+            share count and the top 3 highest-profiting movies from that genre in the selected 
+            time period.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Click / Enter</div>
+        <p>Click a stream (or press Enter when it's focused) to open the scatter plot panel 
+            on the right, showing every movie in that genre plotted by production budget vs. 
+            worldwide gross.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Keyboard Navigation</div>
+        <p>Tab once to enter the stream graph. Use the Left / Right arrow keys to move 
+            between genres. Press Enter or Space to open that genre's scatter plot. Tab again 
+            to exit the graph.</p>
+      </div>
+      <div class="info-section">
+        <div class="info-section-title">Scatter Plot</div>
+        <p>Each dot is a movie. Scroll to zoom in on crowded areas — the bottom-left cluster
+             is low-budget films. Double-click to reset the zoom. Hover a dot for the movie's
+              full financial details. Click ✕ to close the scatter plot.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 </div>

@@ -3,17 +3,17 @@ const GENRES = [
   "Action","Adventure","Animation","Comedy","Crime",
   "Documentary","Drama","Family","Fantasy","History",
   "Horror","Music","Mystery","Romance","Science Fiction",
-  "TV Movie","Thriller","War","Western"
+  "Thriller","War","Western"
 ];
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun",
                      "Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const COLOR_PALETTE = [
-  "#e8a838","#e85d38","#38a8e8","#9b38e8","#38e86c",
-  "#e838b4","#38e8d4","#e8e838","#e86c38","#386ce8",
-  "#e83838","#38e8a8","#b4e838","#e8386c","#6ce838",
-  "#8838e8","#e8b438","#38b4e8","#e8386c"
+  "#33a02c","#1f78b4","#1f78b4","#1f78b4","#33a02c",
+  "#33a02c","#a6cee3","#b2df8a","#33a02c","#b2df8a",
+  "#a6cee3","#a6cee3","#a6cee3","#b2df8a","#a6cee3",
+  "#b2df8a","#1f78b4","#b2df8a"
 ];
 
 const GENRE_COLORS = Object.fromEntries(GENRES.map((g, i) => [g, COLOR_PALETTE[i % COLOR_PALETTE.length]]));
@@ -25,6 +25,10 @@ let allMovies = [];
 let selectedYear = "all";
 let activeGenre = null;
 let selectedGenre = null;   // drives the scatter plot
+let currentFiltered = [];
+let currentTop3ByGenre = {};
+let currentTotalShares = {};
+let currentG = null;
 
 // ─── TOOLTIPS ─────────────────────────────────────────────────────────────────
 const tooltip = d3.select("#tooltip");
@@ -41,7 +45,7 @@ d3.csv("data/movie_dataset.csv").then(raw => {
     return true;
   });
 
-  // 2. Parse & filter to 2010–2019
+  // 2. Parse & filter to 2010–2018
   allMovies = deduped
     .map(d => {
       const rd = d.release_date?.trim();
@@ -73,7 +77,7 @@ d3.csv("data/movie_dataset.csv").then(raw => {
         genreFlags: Object.fromEntries(GENRES.map((g, i) => [g, genreFlags[i]]))
       };
     })
-    .filter(d => d && d.year >= 2010 && d.year <= 2019);
+    .filter(d => d && d.year >= 2010 && d.year <= 2018);
 
   // 3. Populate year filter
   const years = [...new Set(allMovies.map(d => d.year))].sort();
@@ -136,18 +140,47 @@ function update() {
       .slice(0, 3);
   });
 
+  const genreTotals = {};
+  GENRES.forEach(g => genreTotals[g] = 0);
+
+  allMovies.forEach(d => {
+    GENRES.forEach(g => {
+      genreTotals[g] += d.genreWeights[g];
+    });
+  });
+
+
+  const totalSharesByGenre = {};
+
+  GENRES.forEach(genre => {
+    totalSharesByGenre[genre] = d3.sum(
+      filtered,
+      d => d.genreWeights[genre]
+    );
+  });
+
+  // Sort genres by total contribution (largest first)
+  const ORDERED_GENRES = GENRES
+    .slice()
+    .sort((a, b) => genreTotals[b] - genreTotals[a]);
+
+
+  currentFiltered = filtered;
+  currentTop3ByGenre = top3ByGenre;
+  currentTotalShares = totalSharesByGenre;
+
   // ── D3 Stack ──
   const stack = d3.stack()
-    .keys(GENRES)
+    .keys(ORDERED_GENRES)
     .offset(d3.stackOffsetWiggle)
-    .order(d3.stackOrderInsideOut);
+    .order(d3.stackOrderNone);
 
   const series = stack(monthData);
 
   // ── Dimensions ──
   const container = document.getElementById("chart");
   const W = container.clientWidth || 900;
-  const H = Math.min(575, window.innerHeight * 0.6);
+  const H = Math.min(750, window.innerHeight * 0.8);
   const innerW = W - MARGIN.left - MARGIN.right;
   const innerH = H - MARGIN.top - MARGIN.bottom;
 
@@ -159,6 +192,7 @@ function update() {
 
   const g = svg.append("g")
     .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+  currentG = g;
 
   // ── Scales ──
   const xScale = d3.scaleLinear()
@@ -190,19 +224,81 @@ function update() {
     .attr("fill", d => GENRE_COLORS[d.key])
     .attr("opacity", 0.82)
     .style("cursor", "pointer")
+    // Roving tabindex: first stream is reachable via Tab, rest via arrow keys
+    .attr("tabindex", (d, i) => i === 0 ? "0" : "-1")
+    .attr("role", "button")
+    .attr("aria-label", d => `${d.key} genre stream. Press Enter to open scatter plot.`)
+    .on("focus", function(event, d) {
+      const genre = d.key;
+      activeGenre = genre;
+      currentG.selectAll(".stream").attr("opacity", s => s.key === genre ? 1 : 0.18);
+
+      const top3 = currentTop3ByGenre[genre];
+      const totalShare = currentTotalShares[genre];
+      const fmt = v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${v.toLocaleString()}`;
+
+      let html = `<div class="tt-genre" style="color:${GENRE_COLORS[genre]}">${genre}: ${totalShare.toFixed(1)} shares</div>`;
+      html += `<div class="tt-label">Top 3 by profit:</div>`;
+      if (top3.length === 0) {
+        html += `<div class="tt-movie">No data</div>`;
+      } else {
+        top3.forEach((m, i) => {
+          html += `<div class="tt-movie"><span class="tt-rank">#${i+1}</span> ${m.movie}<span class="tt-profit">${fmt(m.profit)}</span></div>`;
+        });
+      }
+
+      const rect = event.target.getBoundingClientRect();
+      tooltip
+        .style("display", "block")
+        .style("opacity", "1")
+        .html(html)
+        .style("left", (rect.left + rect.width / 2 + 14) + "px")
+        .style("top",  (rect.top  + 14) + "px");
+    })
+    .on("blur", function() {
+      activeGenre = null;
+      currentG.selectAll(".stream").attr("opacity", 0.82);
+      tooltip.style("opacity","0").style("display","none");
+    })
+    .on("keydown", function(event, d) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        selectedGenre = d.key;
+        const moviesForGenre = currentFiltered.filter(m => m.genreFlags[d.key] === 1);
+        drawScatter(d.key, moviesForGenre);
+      }
+      // Roving tabindex: arrow keys move focus between streams
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        const all = currentG.selectAll(".stream").nodes();
+        const i = all.indexOf(this);
+        const next = all[(i + 1) % all.length];
+        all.forEach(n => d3.select(n).attr("tabindex", "-1"));
+        d3.select(next).attr("tabindex", "0");
+        next.focus();
+      }
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        const all = currentG.selectAll(".stream").nodes();
+        const i = all.indexOf(this);
+        const prev = all[(i - 1 + all.length) % all.length];
+        all.forEach(n => d3.select(n).attr("tabindex", "-1"));
+        d3.select(prev).attr("tabindex", "0");
+        prev.focus();
+      }
+    })
     .on("mousemove", function(event, d) {
       const genre = d.key;
       activeGenre = genre;
+      totalShare = totalSharesByGenre[genre];
 
-      // Dim others
       g.selectAll(".stream").attr("opacity", s => s.key === genre ? 1 : 0.18);
 
-      // Build tooltip content
       const top3 = top3ByGenre[genre];
       const fmt = v => v >= 1e6 ? `$${(v/1e6).toFixed(1)}M` : `$${v.toLocaleString()}`;
 
-      let html = `<div class="tt-genre" style="color:${GENRE_COLORS[genre]}">${genre}</div>`;
-      html += `<div class="tt-label">Top 3 movies by profit:</div>`;
+      let html = `<div class="tt-genre" style="color:${GENRE_COLORS[genre]}">${genre}: ${totalShare.toFixed(1)} shares</div>`;
+      html += `<div class="tt-label">Top 3 by profit:</div>`;
       if (top3.length === 0) {
         html += `<div class="tt-movie">No data</div>`;
       } else {
@@ -216,7 +312,7 @@ function update() {
         .style("opacity","1")
         .html(html)
         .style("left", (event.pageX + 14) + "px")
-        .style("top", (event.pageY - 20) + "px");
+        .style("top", (event.pageY - 160) + "px");
     })
     .on("mouseleave", function() {
       activeGenre = null;
@@ -290,7 +386,13 @@ function update() {
       })
       .on("mouseleave", function() {
         g.selectAll(".stream").attr("opacity", 0.82);
-      });
+      })
+      .on("click", function() {
+      selectedGenre = genre;
+      const moviesForGenre = filtered.filter(m => m.genreFlags[genre] === 1);
+      drawScatter(genre, moviesForGenre);
+    });
+
 
     item.append("div").attr("class","legend-dot")
       .style("background", GENRE_COLORS[genre]);
@@ -331,7 +433,7 @@ function drawScatter(genre, movies) {
   // ── Dimensions ──
   const W = container.clientWidth || 700;
   const H = 450;
-  const SM = { top: 20, right: 20, bottom: 54, left: 62 };
+  const SM = { top: 20, right: 20, bottom: 54, left: 85 };
   const iW = W - SM.left - SM.right;
   const iH = H - SM.top  - SM.bottom;
 
@@ -339,6 +441,12 @@ function drawScatter(genre, movies) {
     .append("svg")
     .attr("width",  W)
     .attr("height", H);
+
+  svg.append("defs").append("clipPath")
+    .attr("id", "scatter-clip")
+    .append("rect")
+    .attr("width", iW)
+    .attr("height", iH);
 
   const g = svg.append("g")
     .attr("transform", `translate(${SM.left},${SM.top})`);
@@ -373,7 +481,7 @@ function drawScatter(genre, movies) {
     d3.max(valid, d => d.production_budget),
     d3.max(valid, d => d.gross_revenue)
   );
-  g.append("line")
+  const gBreakEven = g.append("line")
     .attr("x1", xScale(0)).attr("y1", yScale(0))
     .attr("x2", xScale(beMax)).attr("y2", yScale(beMax))
     .attr("stroke","rgba(255,255,255,0.12)")
@@ -381,7 +489,9 @@ function drawScatter(genre, movies) {
     .attr("stroke-dasharray","4 3");
 
   // ── Dots ──
-  g.selectAll(".scatter-dot")
+  const dotsGroup = g.append("g").attr("clip-path", "url(#scatter-clip)");
+
+  dotsGroup.selectAll(".scatter-dot")
     .data(valid)
     .join("circle")
     .attr("class","scatter-dot")
@@ -412,12 +522,52 @@ function drawScatter(genre, movies) {
     });
 
   // ── Axes ──
-  g.append("g").attr("class","scatter-axis")
+  const gXAxis = g.append("g").attr("class","scatter-axis")
     .attr("transform", `translate(0,${iH})`)
     .call(d3.axisBottom(xScale).ticks(5).tickFormat(v => `$${v/1e6|0}M`));
 
-  g.append("g").attr("class","scatter-axis")
+  const gYAxis = g.append("g").attr("class","scatter-axis")
     .call(d3.axisLeft(yScale).ticks(5).tickFormat(v => `$${v/1e6|0}M`));
+
+  // ── Zoom ──
+  const zoom = d3.zoom()
+    .scaleExtent([1, 40])
+    .translateExtent([[0, 0], [iW, iH]])
+    .extent([[0, 0], [iW, iH]])
+    .on("zoom", (event) => {
+      const t = event.transform;
+
+      // Rescale axes
+      const newX = t.rescaleX(xScale);
+      const newY = t.rescaleY(yScale);
+
+      // Redraw axes with new scales
+      gXAxis.call(d3.axisBottom(newX).ticks(5).tickFormat(v => `$${v/1e6|0}M`));
+      gYAxis.call(d3.axisLeft(newY).ticks(5).tickFormat(v => `$${v/1e6|0}M`));
+
+      // Reposition dots
+      dotsGroup.selectAll(".scatter-dot")
+        .attr("cx", d => newX(d.production_budget))
+        .attr("cy", d => newY(d.worldwide_gross));
+
+      // Reposition break-even line
+      gBreakEven
+        .attr("x1", newX(0)).attr("y1", newY(0))
+        .attr("x2", newX(beMax)).attr("y2", newY(beMax));
+    });
+
+  svg.call(zoom);
+
+  // Reset zoom on double-click
+  svg.on("dblclick.zoom", () => svg.transition().duration(400).call(zoom.transform, d3.zoomIdentity));
+
+  // Zoom hint label
+  g.append("text")
+    .attr("x", iW).attr("y", -6)
+    .attr("text-anchor", "end")
+    .attr("font-size", "10px")
+    .attr("fill", "rgba(255,255,255,0.25)")
+    .text("scroll to zoom · double-click to reset");
 
   // Axis labels
   g.append("text").attr("class","axis-label")
@@ -440,4 +590,32 @@ let resizeTimer;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);
   resizeTimer = setTimeout(update, 180);
+});
+
+// ─── INFO MODAL ───────────────────────────────────────────────────────────────
+const infoOverlay = document.getElementById("info-overlay");
+const infoBtn     = document.getElementById("info-btn");
+const infoClose   = document.getElementById("info-close");
+
+function openInfo() {
+  infoOverlay.hidden = false;
+  infoClose.focus();
+}
+
+function closeInfo() {
+  infoOverlay.hidden = true;
+  infoBtn.focus();
+}
+
+infoBtn.addEventListener("click", openInfo);
+infoClose.addEventListener("click", closeInfo);
+
+// Close on backdrop click
+infoOverlay.addEventListener("click", function(e) {
+  if (e.target === infoOverlay) closeInfo();
+});
+
+// Close on Escape
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape" && !infoOverlay.hidden) closeInfo();
 });
