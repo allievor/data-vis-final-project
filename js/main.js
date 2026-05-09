@@ -488,39 +488,56 @@ function drawScatter(genre, movies) {
     .attr("stroke-width", 1)
     .attr("stroke-dasharray","4 3");
 
-  // ── Dots ──
-  const dotsGroup = g.append("g").attr("clip-path", "url(#scatter-clip)");
+// ── Dots ──
+const dotsGroup = g.append("g").attr("clip-path", "url(#scatter-clip)");
 
-  dotsGroup.selectAll(".scatter-dot")
-    .data(valid)
-    .join("circle")
-    .attr("class","scatter-dot")
-    .attr("cx", d => xScale(d.production_budget))
-    .attr("cy", d => yScale(d.gross_revenue))
-    .attr("r", 5)
-    .attr("fill", color)
-    .attr("opacity", 0.7)
-    .on("mousemove", function(event, d) {
-      d3.select(this).attr("r", 7).attr("opacity", 1);
+dotsGroup.selectAll(".scatter-dot")
+  .data(valid)
+  .join("circle")
+  .attr("class", "scatter-dot")
+  .attr("cx", d => xScale(d.production_budget))
+  .attr("cy", d => yScale(d.gross_revenue))
+  .attr("r", 5)
+  .attr("fill", color)
+  .attr("opacity", 0.7)
+  .on("mousemove", function(event, d) {
+    d3.select(this).attr("r", 7).attr("opacity", 1);
 
-      const dateStr = `${String(d.month).padStart(2,"0")}-${String(d.day).padStart(2,"0")}-${d.year}`;
+    const dateStr = `${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}-${d.year}`;
 
-      let html = `<div class="stt-title">${d.movie}</div>`;
-      html += row("Release Date",   dateStr);
-      html += row("Budget",    fmt(d.production_budget));
-      html += row("Revenue", fmt(d.gross_revenue));
+    let html = `<div class="stt-title">${d.movie}</div>`;
+    html += row("Release Date", dateStr);
+    html += row("Budget", fmt(d.production_budget));
+    html += row("Revenue", fmt(d.gross_revenue));
 
-      scatterTooltip
-        .style("display","block").style("opacity","1")
-        .html(html)
-        .style("left", (event.pageX + 14) + "px")
-        .style("top",  (event.pageY - 20) + "px");
-    })
-    .on("mouseleave", function() {
-      d3.select(this).attr("r", 5).attr("opacity", 0.7);
-      scatterTooltip.style("opacity","0").style("display","none");
-    });
+    // Calculate tooltip position
+    const tooltipWidth = scatterTooltip.node().offsetWidth; // Get tooltip width
+    const windowWidth = window.innerWidth; // Get window width
+    let tooltipX = event.pageX + 14; // Default position with padding
+    let tooltipY = event.pageY - 20;
 
+    // Adjust position if tooltip goes off the right edge
+    if (tooltipX + tooltipWidth > windowWidth) {
+      tooltipX = windowWidth - tooltipWidth - 10; // Align to the right edge with padding
+      tooltipY = event.pageY + 20; // Move tooltip below the dot to avoid overlap
+    }
+
+    // Adjust position if tooltip goes off the top of the screen
+    if (tooltipY < 0) {
+      tooltipY = event.pageY + 20; // Move tooltip below the dot
+    }
+
+    scatterTooltip
+      .style("display", "block")
+      .style("opacity", "1")
+      .html(html)
+      .style("left", `${tooltipX}px`)
+      .style("top", `${tooltipY}px`);
+  })
+  .on("mouseleave", function() {
+    d3.select(this).attr("r", 5).attr("opacity", 0.7);
+    scatterTooltip.style("opacity", "0").style("display", "none");
+  });
   // ── Axes ──
   const gXAxis = g.append("g").attr("class","scatter-axis")
     .attr("transform", `translate(0,${iH})`)

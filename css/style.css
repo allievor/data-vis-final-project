@@ -197,7 +197,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   transition: color 0.15s;
   user-select: none;
@@ -278,7 +278,7 @@ html, body {
   color: var(--text-muted);
   text-align: center;
   padding: 60px 20px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ── Responsive ── */
@@ -420,17 +420,17 @@ html, body {
 }
 
 .info-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
+  position: fixed;
+  top: 15px;
+  right: 15px;
   z-index: 10;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg-control);
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 16px;
   font-family: var(--font-body);
   font-weight: 500;
   line-height: 1;
@@ -530,7 +530,7 @@ html, body {
 }
 
 .info-section p {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   line-height: 1.65;
 }
