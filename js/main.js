@@ -565,9 +565,9 @@ function drawScatter(genre, movies) {
   g.append("text")
     .attr("x", iW).attr("y", -6)
     .attr("text-anchor", "end")
-    .attr("font-size", "10px")
-    .attr("fill", "rgba(255,255,255,0.25)")
-    .text("scroll to zoom · double-click to reset");
+    .attr("font-size", "14px")
+    .attr("fill", "rgba(255, 255, 255, 0.76)")
+    .text("Scroll to zoom, double-click to reset");
 
   // Axis labels
   g.append("text").attr("class","axis-label")
@@ -576,7 +576,7 @@ function drawScatter(genre, movies) {
 
   g.append("text").attr("class","axis-label")
     .attr("transform","rotate(-90)")
-    .attr("x", -iH / 2).attr("y", -52).attr("text-anchor","middle")
+    .attr("x", -iH / 2).attr("y", -68).attr("text-anchor","middle")
     .text("Gross Revenue");
 }
 
