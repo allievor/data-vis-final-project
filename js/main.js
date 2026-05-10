@@ -614,6 +614,9 @@ const infoOverlay = document.getElementById("info-overlay");
 const infoBtn     = document.getElementById("info-btn");
 const infoClose   = document.getElementById("info-close");
 
+// Make the overlay visible initially
+infoOverlay.hidden = false;
+
 function openInfo() {
   infoOverlay.hidden = false;
   infoClose.focus();

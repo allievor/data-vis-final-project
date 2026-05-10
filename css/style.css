@@ -440,11 +440,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  border-color: var(--accent);
 }
 
 .info-btn:hover,
 .info-btn:focus-visible {
-  border-color: var(--accent);
   color: var(--text);
   background: var(--accent-dim);
   outline: none;
