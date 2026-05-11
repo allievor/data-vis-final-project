@@ -536,6 +536,14 @@ html, body {
   line-height: 1.65;
 }
 
+.chart-title {
+  font-family: var(--font-display);
+  fill: #f5f5f5;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
 /* ── Responsive: stack vertically on narrow screens ── */
 @media (max-width: 860px) {
   .viz-row { flex-direction: column; }

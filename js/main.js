@@ -105,6 +105,12 @@ function update() {
     ? allMovies
     : allMovies.filter(d => d.year === +selectedYear);
 
+  currentYearStr = selectedYear;
+  if(currentYearStr === "all"){
+    currentYearStr = "2010-2018"
+  }
+
+
   if (filtered.length === 0) {
     d3.select("#chart").append("p").attr("class","no-data").text("No data for selected year.");
     return;
@@ -192,6 +198,13 @@ function update() {
 
   const g = svg.append("g")
     .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+
+    svg.append("text")
+    .attr("class", "chart-title")
+    .attr("x", W / 2)
+    .attr("y", 25)
+    .attr("text-anchor", "middle")
+    .text(`Movie Genre Release Trends (${currentYearStr})`);
   currentG = g;
 
   // ── Scales ──
@@ -420,7 +433,7 @@ function drawScatter(genre, movies) {
   header.append("div")
     .attr("class","scatter-genre-title")
     .style("color", color)
-    .text(genre);
+    .text(`${genre} Movies from ${currentYearStr}`);
   header.append("button")
     .attr("class","scatter-close")
     .text("✕")
