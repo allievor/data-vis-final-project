@@ -522,7 +522,7 @@ html, body {
 }
 
 .info-section-title {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--accent);
@@ -549,3 +549,18 @@ html, body {
   .viz-row { flex-direction: column; }
   .chart-card--scatter { min-height: 380px; width: 100%; }
 }
+
+.caption {
+  text-align: center;
+  font-size: 15px;
+  margin: 1% 10%;
+}
+
+.sr-only {
+  position:absolute;
+  left:-10000px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  }
