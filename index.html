@@ -12,12 +12,12 @@
 
   <!-- Header -->
   <header class="header">
-    <div class="header-left">
+    <div class="header-left" tabindex="0">
       <h1>2010s Cinema <span>Genre Analysis</span></h1>
       <p>Explore movie releases by genre  throughout the year. Hover over a stream to view 
         the top-grossing titles and click to reveal a scatterplot below of budget and revenue insights.</p>
     </div>
-    <div class="controls">
+    <div class="controls" tabindex="2">
       <label for="year-filter">Year</label>
       <select id="year-filter">
         <option value="all">All years (2010–2018)</option>
@@ -26,10 +26,10 @@
   </header>
 
   <!-- Info button -->
-  <button class="info-btn" id="info-btn" aria-label="How to use this visualization">?</button>
+  <button class="info-btn" id="info-btn" aria-label="How to use this visualization" tabindex="1">?</button>
 
     <!-- Stream Graph -->
-    <div class="chart-card chart-card--stream">
+    <div class="chart-card chart-card--stream" tabindex="3">
       <div id="chart"></div>
       <div class="legend-section">
         <div class="legend-title">Genres — hover to highlight, click to learn more</div>
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Scatter Plot -->
-    <div class="chart-card chart-card--scatter" id="scatter-card">
+    <div class="chart-card chart-card--scatter" id="scatter-card" tabindex="4">
       <div class="scatter-empty" id="scatter-empty">
         <div class="scatter-empty-icon">◎</div>
         <p>Click a genre stream to explore <br/> its movies' budget and revenue</p>
@@ -60,13 +60,17 @@
     </div>
 
     <br>
+    <div tabindex="5">
     <p>View the original datas in the Github repository 
         <a href="https://github.com/ntdoris/movie-revenue-analysis/blob/main/final_dataset.csv" style = "color: #a6cee3" target="_blank">
         “Movie Revenue Analysis”</a> by Natalya Doris (@ntdoris)</p>
     <p>Access our cleaned dataset in an HTML table format
       <a href="data.html" style = "color: #a6cee3" target="_blank">
       here</a></p>
-
+    <p>Learn more about our process in the
+      <a href="writeup.pdf" style = "color: #a6cee3" target="_blank">
+      writeup</a></p>
+    </div>
     
     
     <div id="info-overlay" class="info-overlay" hidden>
