@@ -199,7 +199,7 @@ function update() {
   const g = svg.append("g")
     .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
-    svg.append("text")
+  svg.append("text")
     .attr("class", "chart-title")
     .attr("x", W / 2)
     .attr("y", 25)
